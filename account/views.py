@@ -35,8 +35,12 @@ class LoginView(generics.GenericAPIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
+        try:
+            if serializer.is_valid():
+                return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"success": False, "message": f"Credentials are invalid {e}"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class AccountRetrieveUpdateView(generics.RetrieveUpdateAPIView):
@@ -127,9 +131,20 @@ class ChangePasswordCompletedView(generics.UpdateAPIView):
     lookup_field = 'pk'
 
     def patch(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        return Response({'success': True, 'message': 'Successfully set new password'}, status=status.HTTP_200_OK)
+        try:
+            serializer = self.serializer_class(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            return Response({'success': True, 'message': 'Successfully set new password'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': f'{e}'})
+
+    def put(self, request, *args, **kwargs):
+        try:
+            serializer = self.serializer_class(data=request.data, context={'request': request})
+            serializer.is_valid(raise_exception=True)
+            return Response({'success': True, 'message': 'Successfully set new password'}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'message': f'{e}'})
 
 
 class AccountView(generics.RetrieveAPIView):

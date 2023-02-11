@@ -29,6 +29,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 # Login
 class LoginSerializer(serializers.ModelSerializer):
     phone_number = serializers.CharField(max_length=16, required=True)
+    full_name = serializers.CharField(max_length=223, read_only=True)
+    email = serializers.EmailField(read_only=True)
     password = serializers.CharField(max_length=68, write_only=True)
     token = serializers.SerializerMethodField(read_only=True)
 
@@ -39,7 +41,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ('phone_number', 'token', 'password')
+        fields = ('phone_number', 'full_name', 'email', 'token', 'password')
 
     def validate(self, attrs):
         phone_number = attrs.get('phone_number')
@@ -49,12 +51,10 @@ class LoginSerializer(serializers.ModelSerializer):
             raise AuthenticationFailed({
                 'message': 'Phone or password is not correct'
             })
-        if not user.is_active:
-            raise AuthenticationFailed({
-                'message': 'Account disabled'
-            })
         data = {
-            'phone': user.phone_number,
+            'phone_number': user.phone_number,
+            'full_name': user.full_name,
+            'email': user.email
         }
         return data
 
@@ -104,9 +104,9 @@ class SetNewPasswordSerializer(serializers.ModelSerializer):
 
 # Account change password
 class ChangeNewPasswordSerializer(serializers.ModelSerializer):
-    old_password = serializers.CharField(min_length=6, max_length=64, write_only=True)
-    password = serializers.CharField(min_length=6, max_length=64, write_only=True)
-    password2 = serializers.CharField(min_length=6, max_length=64, write_only=True)
+    old_password = serializers.CharField(min_length=3, max_length=64, write_only=True)
+    password = serializers.CharField(min_length=3, max_length=64, write_only=True)
+    password2 = serializers.CharField(min_length=3, max_length=64, write_only=True)
 
     class Meta:
         model = Account
@@ -119,11 +119,9 @@ class ChangeNewPasswordSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         user = request.user
         if not user.check_password(old_password):
-            print(55555555)
             raise serializers.ValidationError(
                 {'success': False, 'message': 'Old password did not match, please try again new'})
         if password != password2:
-            print(321)
             raise serializers.ValidationError(
                 {'success': False, 'message': 'Password did not match, please try again new'})
         user.set_password(password)
