@@ -13,7 +13,7 @@ class BlogCategorySerializer(serializers.ModelSerializer):
 class BlogSerializer(serializers.ModelSerializer):
     class Meta:
         model = Blog
-        fields = ('id', 'title', 'slug', 'category', 'image', 'description', 'date_created')
+        fields = ('id', 'title', 'category', 'image', 'description', 'date_created')
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
