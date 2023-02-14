@@ -14,8 +14,8 @@ urlpatterns = [
     # blog
     path('list/', BlogListAPIView.as_view()),
     path('create/', BlogCreateAPIView.as_view()),
-    path('destroy/<int:id>/', BlogDestroyAPIView.as_view()),
-    path('retrieve/<str:pk>/', BlogRetrieveAPIView.as_view()),
+    path('destroy/<int:pk>/', BlogDestroyAPIView.as_view()),
+    path('retrieve/<int:pk>/', BlogRetrieveAPIView.as_view()),
 
     # comment
     path('comment/post/', CommentCreateAPIView.as_view()),
