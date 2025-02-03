@@ -10,8 +10,15 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from account.permissions import IsAuthenticated
-from account.serializers import RegisterSerializer, LoginSerializer, AccountUpdateSerializer, \
-    SetNewPasswordSerializer, ChangeNewPasswordSerializer, EmailVerificationSerializer
+from account.serializers import (
+    LoginSerializer,
+    AccountSerializer,
+    RegisterSerializer,
+    AccountUpdateSerializer,
+    SetNewPasswordSerializer,
+    ChangeNewPasswordSerializer,
+    EmailVerificationSerializer,
+)
 from account.models import Account
 
 
@@ -147,13 +154,15 @@ class ChangePasswordCompletedView(generics.UpdateAPIView):
             return Response({'message': f'{e}'})
 
 
-class AccountView(generics.RetrieveAPIView):
-    # http://127.0.0.1:8000/api/account/v1/get-account/
+class AccountUserMeView(generics.RetrieveUpdateAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = AccountUpdateSerializer
 
-    def queryset(self, request, *args, **kwargs):
-        user = request.user
-        query = Account.objects.get(id=user.id)
-        serializer = self.get_serializer(query)
-        return Response({'success': True, 'data': serializer.data}, status=status.HTTP_200_OK)
+    def get_object(self):
+        return self.request.user
+
+
+class AccountUsersView(generics.ListAPIView):
+    queryset = Account.objects.filter(is_active=True)
+    serializer_class = AccountUpdateSerializer
+    permission_classes = (IsAuthenticated,)

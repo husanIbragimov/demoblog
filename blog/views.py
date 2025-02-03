@@ -1,6 +1,4 @@
-# from django.db.models import Q
 from rest_framework import generics, status
-# from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.response import Response
 
 from blog.models import Blog, BlogCategory, Comment
@@ -36,6 +34,7 @@ class BlogCategoryListAPIView(generics.ListAPIView):
 class BlogCategoryRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = BlogCategory.objects.all()
     serializer_class = BlogCategorySerializer
+    permission_classes = (IsAuthenticated,)
 
 
 class BlogCreateAPIView(generics.CreateAPIView):
@@ -54,10 +53,14 @@ class BlogListAPIView(generics.ListAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
 
+    def get_queryset(self):
+        return Blog.objects.select_related('category').all()
+
 
 class BlogRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = Blog.objects.all()
     serializer_class = BlogSerializer
+    permission_classes = (IsAuthenticated,)
     lookup_field = 'pk'
 
 
@@ -65,13 +68,6 @@ class CommentCreateAPIView(generics.CreateAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentCreateSerializer
     permission_classes = (IsAuthenticated,)
-
-    def create(self, request, *args, **kwargs):
-        serializer = CommentCreateSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -81,17 +77,14 @@ class CommentCreateAPIView(generics.CreateAPIView):
 class CommentListAPIView(generics.ListAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentListSerializer
-    # search_fields = ['name']
-    # filter_backends = [SearchFilter, OrderingFilter]
-    #
-    # def get_queryset(self, *args, **kwargs):
-    #     queryset_list = Comment.objects.all()
-    #     query = self.request.GET.get('q')
-    #     if query:
-    #         queryset_list = queryset_list.filter(
-    #             Q(name_icontains=query)
-    #         )
-    #     return queryset_list
+
+    def get_queryset(self, *args, **kwargs):
+        blog_id = self.request.query_params.get('blog_id')
+        if blog_id:
+            queryset = Comment.objects.filter(blog_id=blog_id).select_related('user')
+        else:
+            queryset = Comment.objects.all()
+        return queryset
 
 
 class CommentRetrieveAPIView(generics.RetrieveAPIView):

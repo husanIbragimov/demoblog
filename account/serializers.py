@@ -9,10 +9,17 @@ from account.models import Account
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(min_length=6, max_length=68, write_only=True)
     password2 = serializers.CharField(min_length=6, max_length=68, write_only=True)
+    avatar = serializers.ImageField()
 
     class Meta:
         model = Account
-        fields = ('full_name', 'phone_number', 'password', 'password2')
+        fields = (
+            'full_name',
+            'phone_number',
+            'avatar',
+            'password',
+            'password2'
+        )
 
     def validate(self, attrs):
         password = attrs.get('password')
@@ -41,12 +48,18 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Account
-        fields = ('phone_number', 'full_name', 'email', 'token', 'password')
+        fields = (
+            'phone_number',
+            'full_name',
+            'email',
+            'token',
+            'password'
+        )
 
     def validate(self, attrs):
         phone_number = attrs.get('phone_number')
         password = attrs.get('password')
-        user = authenticate(phone_number=phone_number, password=password)
+        user: Account = authenticate(phone_number=phone_number, password=password)
         if not user:
             raise AuthenticationFailed({
                 'message': 'Phone or password is not correct'
@@ -70,10 +83,16 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
 # Account page
 class AccountUpdateSerializer(serializers.ModelSerializer):
+    gender_display = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_gender_display(obj):
+        return obj.get_gender_display()
+
     class Meta:
         model = Account
         fields = (
-            'id', 'full_name', 'phone_number', 'email', 'town_city', 'date_birth', 'gender')
+            'id', 'full_name', 'avatar', 'phone_number', 'email', 'town_city', 'date_birth', 'gender', 'gender_display')
 
 
 # Set-password
@@ -134,4 +153,3 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ("id", "full_name", "phone_number", "email", "town_city")
-

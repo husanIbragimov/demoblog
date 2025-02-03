@@ -38,6 +38,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
         (2, 'Female'),
     )
     full_name = models.CharField(max_length=50, verbose_name='First name', null=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True)
     phone_number = models.CharField(max_length=16, unique=True, db_index=True, verbose_name='Phone number', null=True)
     email = models.EmailField(unique=True, db_index=True, null=True)
     gender = models.IntegerField(choices=GENDER, default=0)

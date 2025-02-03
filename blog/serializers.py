@@ -19,12 +19,15 @@ class BlogSerializer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ('id', 'blog', 'user', 'description', 'date_created')
+        fields = ('id', 'blog', 'description', 'date_created')
 
 
 class CommentListSerializer(serializers.ModelSerializer):
-    blog_id = serializers.IntegerField(source='blog.id', read_only=True)
+    full_name = serializers.SerializerMethodField()
+
+    def get_full_name(self, obj):
+        return obj.user.full_name
 
     class Meta:
         model = Comment
-        fields = ('id', 'blog_id', 'description', 'date_created')
+        fields = ('id', 'full_name', 'description', 'date_created')
