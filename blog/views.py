@@ -3,7 +3,8 @@ from rest_framework.response import Response
 
 from blog.models import Blog, BlogCategory, Comment
 from account.permissions import IsAuthenticated
-from .serializers import BlogSerializer, BlogCategorySerializer, CommentCreateSerializer, CommentListSerializer
+from .serializers import BlogSerializer, BlogCategorySerializer, CommentCreateSerializer, CommentListSerializer, \
+    BlogCreateSerializer
 
 
 class BlogCategoryCreateAPIview(generics.CreateAPIView):
@@ -39,8 +40,12 @@ class BlogCategoryRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 class BlogCreateAPIView(generics.CreateAPIView):
     queryset = Blog.objects.all()
-    serializer_class = BlogSerializer
+    serializer_class = BlogCreateSerializer
     permission_classes = (IsAuthenticated,)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(owner=user)
 
 
 class BlogDestroyAPIView(generics.DestroyAPIView):
@@ -59,7 +64,7 @@ class BlogListAPIView(generics.ListAPIView):
 
 class BlogRetrieveAPIView(generics.RetrieveUpdateAPIView):
     queryset = Blog.objects.all()
-    serializer_class = BlogSerializer
+    serializer_class = BlogCreateSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'pk'
 
@@ -83,12 +88,12 @@ class CommentListAPIView(generics.ListAPIView):
         if blog_id:
             queryset = Comment.objects.filter(blog_id=blog_id).select_related('user')
         else:
-            queryset = Comment.objects.all()
+            queryset = Comment.objects.all().select_related('user')
         return queryset
 
 
 class CommentRetrieveAPIView(generics.RetrieveAPIView):
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.all().select_related("user")
     serializer_class = CommentListSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'pk'

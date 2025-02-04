@@ -152,4 +152,4 @@ class ChangeNewPasswordSerializer(serializers.ModelSerializer):
 class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
-        fields = ("id", "full_name", "phone_number", "email", "town_city")
+        fields = ("id", "full_name", "avatar")

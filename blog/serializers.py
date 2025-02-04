@@ -11,6 +11,15 @@ class BlogCategorySerializer(serializers.ModelSerializer):
 
 
 class BlogSerializer(serializers.ModelSerializer):
+    owner = AccountSerializer(read_only=True)
+
+    class Meta:
+        model = Blog
+        fields = ('id', 'title', 'category', 'image', 'description', 'date_created', 'owner')
+
+
+class BlogCreateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Blog
         fields = ('id', 'title', 'category', 'image', 'description', 'date_created')
@@ -23,11 +32,8 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 
 
 class CommentListSerializer(serializers.ModelSerializer):
-    full_name = serializers.SerializerMethodField()
-
-    def get_full_name(self, obj):
-        return obj.user.full_name
+    user = AccountSerializer(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ('id', 'full_name', 'description', 'date_created')
+        fields = ('id', 'user', 'description', 'date_created')

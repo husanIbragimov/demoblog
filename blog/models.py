@@ -19,6 +19,7 @@ class Blog(models.Model):
     description = models.TextField()
     is_active = models.BooleanField(default=True)
     date_created = models.DateField(auto_now_add=True)
+    owner = models.ForeignKey('account.Account', on_delete=models.CASCADE, null=True, related_name='blogs')
 
     def get_absolute_url(self):
         return reverse('blog_detail', args=[self.slug])
