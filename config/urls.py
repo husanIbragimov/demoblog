@@ -28,7 +28,7 @@ from rest_framework_simplejwt.views import (
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Soff Blog site API documentation",
+        title="Demo Medium site API documentation",
         default_version='v1',
         description="Blog official site documentation",
         terms_of_service="https://www.google.com/policies/terms/",

@@ -59,11 +59,11 @@ class BlogListAPIView(generics.ListAPIView):
     serializer_class = BlogSerializer
 
     def get_queryset(self):
-        return Blog.objects.select_related('category').all()
+        return Blog.objects.select_related('category', 'owner')
 
 
 class BlogRetrieveAPIView(generics.RetrieveUpdateAPIView):
-    queryset = Blog.objects.all()
+    queryset = Blog.objects.all().select_related('category', 'owner')
     serializer_class = BlogCreateSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'pk'
@@ -97,3 +97,12 @@ class CommentRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = CommentListSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'pk'
+
+
+class MyBlogsAPIView(generics.ListAPIView):
+    serializer_class = BlogSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        user = self.request.user
+        return Blog.objects.filter(owner=user).select_related('category', 'owner')
