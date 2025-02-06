@@ -19,10 +19,11 @@ class BlogSerializer(serializers.ModelSerializer):
 
 
 class BlogCreateSerializer(serializers.ModelSerializer):
+    owner = AccountSerializer(read_only=True)
 
     class Meta:
         model = Blog
-        fields = ('id', 'title', 'category', 'image', 'description', 'date_created')
+        fields = ('id', 'title', 'category', 'image', 'description', 'date_created', 'owner')
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
